@@ -70,7 +70,8 @@ public class GuiMonsterSpawnHighlighterSlot extends GuiSlot {
         }
 
         drawEntity(x, y, this.spawnConditions.get(index).entity);
-        this.guiMonsterSpawnHighlighter.drawString(this.fontRenderer, this.spawnConditions.get(index).entity.getDisplayName().getFormattedText(), x + 24, y + 6, 0x00FFFFFF);
+        this.guiMonsterSpawnHighlighter.drawString(
+        	this.fontRenderer, this.spawnConditions.get(index).entity.getName(), x + 24, y + 6, 0x00FFFFFF);
     }
 
     private void drawEntity(int x, int y, EntityLiving entityLiving) {

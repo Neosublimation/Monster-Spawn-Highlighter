@@ -42,8 +42,11 @@ public class GuiMonsterSpawnHighlighter extends GuiScreen {
 
         Collections.sort(SpawnCondition.SPAWN_CONDITIONS, new Comparator<SpawnCondition>() {
             @Override
-            public int compare(SpawnCondition spawnConditionA, SpawnCondition spawnConditionB) {
-                return spawnConditionA.entity.getDisplayName().getFormattedText().compareTo(spawnConditionB.entity.getDisplayName().getFormattedText());
+            public int compare(SpawnCondition spawnConditionA, SpawnCondition spawnConditionB)
+            {
+                return spawnConditionA.entity.getName().compareTo(
+                	spawnConditionB.entity.getName()
+                );
             }
         });
 

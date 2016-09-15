@@ -2,6 +2,7 @@ package com.github.lunatrius.msh.entity;
 
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class SpawnConditionAnimal extends SpawnConditionCreature {
@@ -10,7 +11,11 @@ public class SpawnConditionAnimal extends SpawnConditionCreature {
     }
 
     @Override
-    public SpawnType canSpawnAt(World world, int x, int y, int z) {
-        return world.getBlock(x, y - 1, z) == Blocks.grass && getBlockLightLevel(world, x, y, z, LIGHT_DAY) > 8 ? SpawnType.DAY : SpawnType.NONE;
+    public SpawnType canSpawnAt(World world, int x, int y, int z)
+    {
+        return
+        	world.getBlockState(new BlockPos(x, y - 1, z)).getBlock() == Blocks.GRASS && getBlockLightLevel(world, x, y, z, LIGHT_DAY) > 8
+        	? SpawnType.DAY
+        	: SpawnType.NONE;
     }
 }

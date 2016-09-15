@@ -11,6 +11,6 @@ public class SpawnConditionGhast extends SpawnCondition {
 
     @Override
     public SpawnType canSpawnAt(World world, int x, int y, int z) {
-        return world.difficultySetting != EnumDifficulty.PEACEFUL ? SpawnType.BOTH.and(super.canSpawnAt(world, x, y, z)) : SpawnType.NONE;
+        return world.getDifficulty() != EnumDifficulty.PEACEFUL ? SpawnType.BOTH.and(super.canSpawnAt(world, x, y, z)) : SpawnType.NONE;
     }
 }

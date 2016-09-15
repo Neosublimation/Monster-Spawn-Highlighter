@@ -10,6 +10,6 @@ public class SpawnConditionWaterMob extends SpawnConditionCreature {
 
     @Override
     public SpawnType canSpawnAt(World world, int x, int y, int z) {
-        return world.checkNoEntityCollision(this.entity.boundingBox) ? SpawnType.BOTH : SpawnType.NONE;
+        return world.checkNoEntityCollision(this.entity.getEntityBoundingBox()) ? SpawnType.BOTH : SpawnType.NONE;
     }
 }

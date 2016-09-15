@@ -1,41 +1,46 @@
 package com.github.lunatrius.msh.handler.client;
 
-import com.github.lunatrius.core.util.vector.Vector4i;
-import com.github.lunatrius.msh.client.gui.GuiMonsterSpawnHighlighter;
-import com.github.lunatrius.msh.entity.SpawnCondition;
-import com.github.lunatrius.msh.handler.ConfigurationHandler;
-import com.github.lunatrius.msh.reference.Reference;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.culling.Frustrum;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.SpawnerAnimals;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeGenBase;
-import org.lwjgl.input.Keyboard;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static cpw.mods.fml.common.gameevent.InputEvent.KeyInputEvent;
-import static cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
+import org.lwjgl.input.Keyboard;
+
+import com.github.lunatrius.core.util.vector.Vector4i;
+import com.github.lunatrius.msh.client.gui.GuiMonsterSpawnHighlighter;
+import com.github.lunatrius.msh.entity.SpawnCondition;
+import com.github.lunatrius.msh.handler.ConfigurationHandler;
+import com.github.lunatrius.msh.reference.Reference;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.EntityLiving.SpawnPlacementType;
+import net.minecraft.entity.EntitySpawnPlacementRegistry;
+import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldEntitySpawner;
+import net.minecraft.world.biome.Biome;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 
 public class Events {
     public static final KeyBinding TOGGLE_KEY = new KeyBinding("key.monsterspawnhighlighter.toggle", Keyboard.KEY_L, "key.category.monsterspawnhighlighter");
     public static final List<Vector4i> SPAWN_LIST = new ArrayList<Vector4i>();
 
     private final Minecraft minecraft = Minecraft.getMinecraft();
-    private final Frustrum frustrum = new Frustrum();
-    private final AxisAlignedBB boundingBox = AxisAlignedBB.getBoundingBox(0, 0, 0, 0, 0, 0);
+    private final Frustum frustrum = new Frustum();
+    private AxisAlignedBB boundingBox = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
 
-    private Map<Integer, Map<Class, EnumCreatureType>> biomeCreatureSpawnMapping = new HashMap<Integer, Map<Class, EnumCreatureType>>();
+    private Map<Integer, Map<Class, SpawnPlacementType>> biomeCreatureSpawnMapping = new HashMap<Integer, Map<Class, SpawnPlacementType>>();
     private int ticks = -1;
 
     @SubscribeEvent
@@ -80,7 +85,7 @@ public class Events {
                 for (y = lowY; y <= highY; y++) {
                     for (x = lowX; x <= highX; x++) {
                         for (z = lowZ; z <= highZ; z++) {
-                            if (!this.frustrum.isBoundingBoxInFrustum(this.boundingBox.setBounds(x, y, z, x + 1, y + 1, z + 1))) {
+                            if (!this.frustrum.isBoundingBoxInFrustum(this.boundingBox = new AxisAlignedBB(x, y, z, x + 1, y + 1, z + 1))) {
                                 continue;
                             }
 
@@ -108,28 +113,29 @@ public class Events {
 
     @SuppressWarnings("null")
     private SpawnCondition.SpawnType getCanSpawnHere(World world, int x, int y, int z) {
-        Block block = world.getBlock(x, y - 1, z);
-        if (block == null || block == Blocks.air || block.getMaterial().isLiquid()) {
+    	final IBlockState blockState = world.getBlockState(new BlockPos(x, y - 1, z));
+        Block block = blockState.getBlock();
+        if (block == null || block == Blocks.AIR || blockState.getMaterial().isLiquid()) {
             return SpawnCondition.SpawnType.NONE;
         }
 
-        BiomeGenBase biome = world.getBiomeGenForCoords(x, z);
+        Biome biome = world.getBiomeGenForCoords(new BlockPos(x, 0, z));
 
-        Map<Class, EnumCreatureType> classCreatureType = getClassCreatureTypeMapFromBiome(biome);
+        Map<Class, SpawnPlacementType> classCreatureType = getClassCreatureTypeMapFromBiome(biome);
         if (classCreatureType == null) {
             return SpawnCondition.SpawnType.NONE;
         }
 
         Class clazz;
-        EnumCreatureType creatureType;
+        SpawnPlacementType creatureType;
 
         SpawnCondition.SpawnType type = SpawnCondition.SpawnType.NONE;
 
-        for (Map.Entry<Class, EnumCreatureType> entry : classCreatureType.entrySet()) {
+        for (Map.Entry<Class, SpawnPlacementType> entry : classCreatureType.entrySet()) {
             clazz = entry.getKey();
             creatureType = entry.getValue();
 
-            if (!SpawnerAnimals.canCreatureTypeSpawnAtLocation(creatureType, world, x, y, z)) {
+            if (!WorldEntitySpawner.canCreatureTypeSpawnAtLocation(creatureType, world, new BlockPos(x, y, z))) {
                 continue;
             }
 
@@ -148,23 +154,24 @@ public class Events {
         return type;
     }
 
-    private Map<Class, EnumCreatureType> getClassCreatureTypeMapFromBiome(BiomeGenBase biome) {
-        Map<Class, EnumCreatureType> classCreatureTypeMap = this.biomeCreatureSpawnMapping.get(biome.biomeID);
+    private Map<Class, SpawnPlacementType> getClassCreatureTypeMapFromBiome(Biome biome) {
+    	final int biomeId = Biome.getIdForBiome(biome);
+        Map<Class, SpawnPlacementType> classCreatureTypeMap = this.biomeCreatureSpawnMapping.get(biomeId);
         if (classCreatureTypeMap != null) {
             return classCreatureTypeMap;
         }
 
-        classCreatureTypeMap = new HashMap<Class, EnumCreatureType>();
+        classCreatureTypeMap = new HashMap<Class, SpawnPlacementType>();
 
         for (EnumCreatureType creatureType : EnumCreatureType.values()) {
-            List<BiomeGenBase.SpawnListEntry> spawnableList = biome.getSpawnableList(creatureType);
+            List<Biome.SpawnListEntry> spawnableList = biome.getSpawnableList(creatureType);
             if (spawnableList != null) {
-                for (BiomeGenBase.SpawnListEntry entry : spawnableList) {
-                    classCreatureTypeMap.put(entry.entityClass, creatureType);
+                for (Biome.SpawnListEntry entry : spawnableList) {
+                    classCreatureTypeMap.put(entry.entityClass, EntitySpawnPlacementRegistry.getPlacementForEntity(entry.entityClass));
                 }
             }
         }
 
-        return this.biomeCreatureSpawnMapping.put(biome.biomeID, classCreatureTypeMap);
+        return this.biomeCreatureSpawnMapping.put(biomeId, classCreatureTypeMap);
     }
 }

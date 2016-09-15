@@ -1,19 +1,21 @@
 package com.github.lunatrius.msh.entity;
 
-import com.github.lunatrius.msh.MonsterSpawnHighlighter;
-import com.github.lunatrius.msh.handler.ConfigurationHandler;
-import com.github.lunatrius.msh.reference.Reference;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.monster.EntitySlime;
-import net.minecraft.world.World;
-
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.github.lunatrius.msh.MonsterSpawnHighlighter;
+import com.github.lunatrius.msh.handler.ConfigurationHandler;
+import com.github.lunatrius.msh.reference.Reference;
+
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.monster.EntitySlime;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public abstract class SpawnCondition {
     public final static int LIGHT_DAY = 0;
@@ -55,11 +57,12 @@ public abstract class SpawnCondition {
     }
 
     protected boolean hasNoCollisions(World world) {
-        return world.checkNoEntityCollision(this.entity.boundingBox) && world.getCollidingBoundingBoxes(this.entity, this.entity.boundingBox).isEmpty() && !world.isAnyLiquid(this.entity.boundingBox);
+        return world.checkNoEntityCollision(this.entity.getEntityBoundingBox()) && world.getCollisionBoxes(this.entity, this.entity.getEntityBoundingBox()).isEmpty() && !world.containsAnyLiquid(this.entity.getEntityBoundingBox());
     }
 
     protected int getBlockLightLevel(World world, int x, int y, int z, int kst) {
-        return world.getChunkFromChunkCoords(x >> 4, z >> 4).getBlockLightValue(x & 0xF, y, z & 0xF, kst);
+    	final BlockPos pos = new BlockPos(x, y, z);
+    	return world.getBlockState(pos).getLightValue(world, pos);
     }
 
     public static void populateData() {
@@ -91,9 +94,9 @@ public abstract class SpawnCondition {
     }
 
     private static void adjustEntity(Entity entity) {
-        if (entity instanceof EntitySlime) {
-            ((EntitySlime) entity).setSlimeSize(1);
-        }
+//        if (entity instanceof EntitySlime) {
+//            ((EntitySlime) entity).setSlimeSize(1);
+//        }
     }
 
     static {

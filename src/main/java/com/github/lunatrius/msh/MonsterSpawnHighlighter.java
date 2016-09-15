@@ -5,15 +5,17 @@ import com.github.lunatrius.msh.entity.SpawnCondition;
 import com.github.lunatrius.msh.handler.ConfigurationHandler;
 import com.github.lunatrius.msh.proxy.CommonProxy;
 import com.github.lunatrius.msh.reference.Reference;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.event.FMLServerStoppingEvent;
+
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.Mod.Instance;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 
 @Mod(modid = Reference.MODID, name = Reference.NAME, version = Reference.VERSION, guiFactory = Reference.GUI_FACTORY)
 public class MonsterSpawnHighlighter {
@@ -29,7 +31,7 @@ public class MonsterSpawnHighlighter {
         ConfigurationHandler.init(event.getSuggestedConfigurationFile());
         proxy.setConfigEntryClasses();
 
-        VersionChecker.registerMod(event.getModMetadata(), Reference.FORGE);
+        VersionChecker.registerMod(Loader.instance().getIndexedModList().get(Reference.MODID), Reference.FORGE);
     }
 
     @EventHandler

@@ -1,7 +1,7 @@
 package com.github.lunatrius.msh.entity;
 
 import net.minecraft.entity.EntityLiving;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 import java.util.Calendar;
@@ -13,7 +13,7 @@ public class SpawnConditionBat extends SpawnCondition {
 
     @Override
     public SpawnType canSpawnAt(World world, int x, int y, int z) {
-        y = MathHelper.floor_double(this.entity.boundingBox.minY);
+        y = MathHelper.floor_double(this.entity.getEntityBoundingBox().minY);
 
         if (y < 63) {
             int light = getBlockLightLevel(world, x, y, z, LIGHT_NIGHT);

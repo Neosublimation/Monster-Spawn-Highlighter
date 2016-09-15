@@ -1,16 +1,21 @@
 package com.github.lunatrius.msh.client.renderer;
 
+import org.lwjgl.opengl.GL11;
+
 import com.github.lunatrius.core.util.vector.Vector4i;
 import com.github.lunatrius.msh.handler.ConfigurationHandler;
 import com.github.lunatrius.msh.handler.client.Events;
 import com.github.lunatrius.msh.reference.Reference;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import org.lwjgl.opengl.GL11;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class Renderer {
     private Minecraft minecraft = null;
@@ -66,9 +71,9 @@ public class Renderer {
         if (this.minecraft != null && ConfigurationHandler.renderSpawns != 0) {
             EntityPlayerSP player = this.minecraft.thePlayer;
             if (player != null) {
-                Reference.PLAYER_POSITION.x = (float) (player.lastTickPosX + (player.posX - player.lastTickPosX) * event.partialTicks);
-                Reference.PLAYER_POSITION.y = (float) (player.lastTickPosY + (player.posY - player.lastTickPosY) * event.partialTicks);
-                Reference.PLAYER_POSITION.z = (float) (player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.partialTicks);
+                Reference.PLAYER_POSITION.x = (float) (player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks());
+                Reference.PLAYER_POSITION.y = (float) (player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks());
+                Reference.PLAYER_POSITION.z = (float) (player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks());
 
                 render();
             }
@@ -110,11 +115,13 @@ public class Renderer {
             }
 
             delta = 0.0f;
-            block = this.minecraft.theWorld.getBlock(blockPos.x, blockPos.y, blockPos.z);
+            final BlockPos blockPosObj = new BlockPos(blockPos.x, blockPos.y, blockPos.z);
+            final IBlockState blockState = this.minecraft.theWorld.getBlockState(blockPosObj);
+            block = blockState.getBlock();
             if (block != null) {
-                if (block == Blocks.snow || block == Blocks.wooden_pressure_plate || block == Blocks.stone_pressure_plate || block == Blocks.light_weighted_pressure_plate || block == Blocks.heavy_weighted_pressure_plate) {
-                    block.setBlockBoundsBasedOnState(this.minecraft.theWorld, blockPos.x, blockPos.y, blockPos.z);
-                    delta = (float) block.getBlockBoundsMaxY();
+                if (block == Blocks.SNOW|| block == Blocks.WOODEN_PRESSURE_PLATE || block == Blocks.STONE_PRESSURE_PLATE || block == Blocks.LIGHT_WEIGHTED_PRESSURE_PLATE || block == Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE) {
+                    final AxisAlignedBB bounds = blockState.getBoundingBox(this.minecraft.theWorld, blockPosObj);
+                    delta = (float)(bounds.maxY - bounds.minY);
                 }
             }
 

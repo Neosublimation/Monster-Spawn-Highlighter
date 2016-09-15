@@ -11,6 +11,6 @@ public class SpawnConditionPigZombie extends SpawnConditionMob {
 
     @Override
     public SpawnType canSpawnAt(World world, int x, int y, int z) {
-        return world.difficultySetting != EnumDifficulty.PEACEFUL && hasNoCollisions(world) ? SpawnType.BOTH : SpawnType.NONE;
+        return world.getDifficulty() != EnumDifficulty.PEACEFUL && hasNoCollisions(world) ? SpawnType.BOTH : SpawnType.NONE;
     }
 }

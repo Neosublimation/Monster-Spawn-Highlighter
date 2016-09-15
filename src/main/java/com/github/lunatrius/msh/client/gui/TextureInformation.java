@@ -1,10 +1,17 @@
 package com.github.lunatrius.msh.client.gui;
 
-import cpw.mods.fml.relauncher.ReflectionHelper;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.imageio.ImageIO;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderLiving;
-import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.monster.EntityCreeper;
@@ -26,15 +33,7 @@ import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.util.ResourceLocation;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public class TextureInformation {
     public class TexturePart {
@@ -72,7 +71,7 @@ public class TextureInformation {
 
     public TextureInformation(EntityLiving entityLiving) throws NullPointerException, IOException, InvocationTargetException, IllegalAccessException {
         Class<? extends EntityLiving> clazz = entityLiving.getClass();
-        RenderLiving renderLiving = (RenderLiving) RenderManager.instance.getEntityClassRenderObject(clazz);
+        Render<Entity> renderLiving = (Render<Entity>) Minecraft.getMinecraft().getRenderManager().getEntityClassRenderObject(clazz);
 
         Method method = ReflectionHelper.findMethod(Render.class, renderLiving, new String[] {
                 "func_110775_a", "a", "getEntityTexture"

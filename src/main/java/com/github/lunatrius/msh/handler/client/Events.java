@@ -119,7 +119,7 @@ public class Events {
             return SpawnCondition.SpawnType.NONE;
         }
 
-        Biome biome = world.getBiomeGenForCoords(new BlockPos(x, 0, z));
+        Biome biome = world.getBiome(new BlockPos(x, 0, z));
 
         Map<Class, SpawnPlacementType> classCreatureType = getClassCreatureTypeMapFromBiome(biome);
         if (classCreatureType == null) {

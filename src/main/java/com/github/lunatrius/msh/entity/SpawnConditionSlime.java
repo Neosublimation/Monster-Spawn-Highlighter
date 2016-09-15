@@ -18,7 +18,7 @@ public class SpawnConditionSlime extends SpawnCondition {
     @Override
     public SpawnType canSpawnAt(World world, int x, int y, int z) {
         if (world.getDifficulty() != EnumDifficulty.PEACEFUL) {
-            Biome biomegenbase = world.getBiomeGenForCoords(new BlockPos(x, 0, z));
+            Biome biomegenbase = world.getBiome(new BlockPos(x, 0, z));
 
             if (biomegenbase instanceof BiomeSwamp && y > 50 && y < 70 && getBlockLightLevel(world, x, y, z, LIGHT_NIGHT) <= 7) {
                 return super.canSpawnAt(world, x, y, z);

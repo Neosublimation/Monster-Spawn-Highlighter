@@ -62,7 +62,7 @@ public abstract class SpawnCondition {
 
     protected int getBlockLightLevel(World world, int x, int y, int z, int kst) {
     	final BlockPos pos = new BlockPos(x, y, z);
-    	return world.getBlockState(pos).getLightValue(world, pos);
+    	return world.getLight(pos);
     }
 
     public static void populateData() {

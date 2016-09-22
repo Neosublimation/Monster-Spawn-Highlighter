@@ -15,7 +15,9 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 
 public abstract class SpawnCondition {
     public final static int LIGHT_DAY = 0;
@@ -61,8 +63,8 @@ public abstract class SpawnCondition {
     }
 
     protected int getBlockLightLevel(World world, int x, int y, int z, int kst) {
-    	final BlockPos pos = new BlockPos(x, y, z);
-    	return world.getLight(pos);
+        BlockPos pos = new BlockPos(x, y, z);
+        return world.getChunkFromBlockCoords(pos).getLightFor(EnumSkyBlock.BLOCK, pos);
     }
 
     public static void populateData() {
